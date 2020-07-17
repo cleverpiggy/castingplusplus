@@ -34,7 +34,7 @@ class BaseModel(db.Model):
     def format(self):
         # Not sure how robust this is.  It appears instance.__dict__
         # contains only attributes defined here and stuff starting with '_'.
-        return {k:v for k, v in self.__dict__.items() if not k.startswith('_')}
+        return {p: getattr(self, p) for p in self.viewable_properties}
 
     def delete(self):
         db.session.delete(self)
@@ -58,6 +58,7 @@ class BaseModel(db.Model):
 
 class Actor(BaseModel):
     __tablename__ = 'actor'
+    viewable_properties = ['id', 'name', 'age', 'gender']
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
@@ -68,6 +69,7 @@ class Actor(BaseModel):
     bookings = db.relationship('Booking', backref='actor', lazy=True,
                                cascade='all, delete-orphan')
 
+
     def __repr__(self):
         return f'<Actor {self.id} {self.name}>'
 
@@ -75,6 +77,8 @@ class Actor(BaseModel):
 
 class Movie(BaseModel):
     __tablename__ = 'movie'
+    viewable_properties = ['id', 'title', 'release_date']
+
     id = Column(Integer, primary_key=True)
     title = Column(String(100), nullable=False)
     release_date = Column(DateTime, nullable=False)
@@ -87,6 +91,8 @@ class Movie(BaseModel):
 # Roles represent roles in a movie.  Each movie has several.
 class Role(BaseModel):
     __tablename__ = 'role'
+    viewable_properties = ['id', 'name', 'age', 'gender', 'filled', 'movie_id']
+
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     age = Column(Integer, CheckConstraint('age > 0'), nullable=False)
@@ -103,6 +109,8 @@ class Role(BaseModel):
 # A Booking is where an actor is matched with a role.
 class Booking(BaseModel):
     __tablename__ = 'booking'
+    viewable_properties = ['id', 'actor_id', 'role_id']
+
     id = Column(Integer, primary_key=True)
     role_id = Column(Integer, ForeignKey('role.id'), nullable=False)
     actor_id = Column(Integer, ForeignKey('actor.id'), nullable=False)

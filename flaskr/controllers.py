@@ -34,8 +34,10 @@ def get_json():
 
 def commit_data(func):
     """Return the result of func.
+
+    func -> commits data and optionally returns something
     Enforce the pattern
-        try: commitment func
+        try: commit func
         except: rollback, print error
         finally: close session
         if error: abort
@@ -79,23 +81,15 @@ def post(model, column_names):
             abort(422, description=f'{kword} required')
         column_vals[kword] = value
 
-    commit_data(lambda: model(**column_vals).add())
+    def f():
+        entry = model(**column_vals)
+        entry.add()
+        return entry.format()
+    formatted_entry = commit_data(f)
 
     return jsonify({
         'success': True,
-        model.singular(): column_vals
-        })
-
-
-def delete(model, id_):
-    entry = model.query.get(id_)
-    if entry is None:
-        abort(404, description=f'{model.__tablename__} {id_} not found.')
-    entry.delete()
-
-    return jsonify({
-        'success': True,
-        f'{model.__tablename__} id': id_
+        model.singular(): formatted_entry
         })
 
 
@@ -116,6 +110,17 @@ def patch(model, id_, column_names):
         model.singular(): formatted_entry
         })
 
+
+def delete(model, id_):
+    entry = model.query.get(id_)
+    if entry is None:
+        abort(404, description=f'{model.__tablename__} {id_} not found.')
+    entry.delete()
+
+    return jsonify({
+        'success': True,
+        f'{model.__tablename__} id': id_
+        })
 
 def parse_gender(gender):
     g = gender.lower()
