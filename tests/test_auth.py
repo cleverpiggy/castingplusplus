@@ -48,6 +48,23 @@ def check(auth_level, request_func, url):
     assert response.status_code == 401
 
 
+# Endpoints:
+# GET /actors
+# GET /movies
+# GET /roles
+# GET /movie/<id>
+# POST /roles/<id>
+# POST /actor
+# POST /movie
+# POST /actor/<id>/role/<id>
+# DELETE /actor/<id>
+# DELETE /movie/<id>
+# DELETE /role/<id>
+# PATCH /actor/<id>
+# PATCH /movie/<id>
+# PATCH /role/<id>
+
+
 # producer director assistant
 def test_get_actor(client):
     url = '/actors'
@@ -59,8 +76,8 @@ def test_get_movies(client):
     check('assistant', client.get, url)
 
 # producer director assistant
-def test_get_movie_roles(client):
-    url = '/movie1/roles'
+def test_get_movie(client):
+    url = '/movie/1'
     check('assistant', client.get, url)
 
 # producer director assistant
@@ -80,30 +97,30 @@ def test_post_movie(client):
 
 # producer director
 def test_delete_actor(client):
-    url = '/actor1'
+    url = '/actor/1'
     check('director', client.delete, url)
 
 # producer
 def test_delete_movie(client):
-    url = '/movie1'
+    url = '/movie/1'
     check('producer', client.delete, url)
 
 # producer director
 def test_patch_actor(client):
-    url = '/actor1'
+    url = '/actor/1'
     check('director', client.patch, url)
 
 # producer director
 def test_patch_movie(client):
-    url = '/movie1'
+    url = '/movie/1'
     check('director', client.patch, url)
 
 # producer director
 def test_book_actor_role(client):
-    url = f'/book/actor1/role1'
+    url = f'/actor/1/role/1'
     check('director', client.post, url)
 
 # producer director
-def test_post_movie_roles(client):
-    url = '/movie1/roles'
+def test_post_roles(client):
+    url = '/roles/1'
     check('director', client.post, url)

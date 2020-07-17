@@ -12,17 +12,17 @@ from .auth import register_views as reg_auth_views
 # GET /actors
 # GET /movies
 # GET /roles
-# GET /movie<id>/roles
-# POST /movie<id>/roles
+# GET /movie/<id>
+# POST /roles/<id>
 # POST /actor
 # POST /movie
-# POST /book/actor<id>/role<id>
-# DELETE /actor<id>
-# DELETE /movie<id>
-# DELETE /role<id>
-# PATCH /actor<id>
-# PATCH /movie<id>
-# PATCH /role<id>
+# POST /actor/<id>/role/<id>
+# DELETE /actor/<id>
+# DELETE /movie/<id>
+# DELETE /role/<id>
+# PATCH /actor/<id>
+# PATCH /movie/<id>
+# PATCH /role/<id>
 
 PAGE_LENGTH = 10
 
@@ -83,7 +83,7 @@ def post(model, column_names):
 
     return jsonify({
         'success': True,
-        model.plural(): column_vals
+        model.singular(): column_vals
         })
 
 
@@ -179,33 +179,33 @@ def register_views(app):
     def post_movie(jwt_payload):
         return post(Movie, ['title', 'release_date'])
 
-    @app.route('/actor<int:id_>', methods=['DELETE'])
+    @app.route('/actor/<int:id_>', methods=['DELETE'])
     @requires_auth('delete:actors')
     def delete_actor(jwt_payload, id_):
         return delete(Actor, id_)
 
-    @app.route('/movie<int:id_>', methods=['DELETE'])
+    @app.route('/movie/<int:id_>', methods=['DELETE'])
     @requires_auth('delete:movies')
     def delete_movie(jwt_payload, id_):
         return delete(Movie, id_)
 
-    @app.route('/actor<int:id_>', methods=['PATCH'])
+    @app.route('/actor/<int:id_>', methods=['PATCH'])
     @requires_auth('edit:actors')
     def patch_actor(jwt_payload, id_):
         return patch(Actor, id_, ['name', 'age', 'gender'])
 
-    @app.route('/role<int:id_>', methods=['PATCH'])
+    @app.route('/role/<int:id_>', methods=['PATCH'])
     @requires_auth('edit:roles')
     def patch_role(jwt_payload, id_):
         return patch(Role, id_, ['name', 'age', 'gender', 'filled'])
 
-    @app.route('/movie<int:id_>', methods=['PATCH'])
+    @app.route('/movie/<int:id_>', methods=['PATCH'])
     @requires_auth('edit:movies')
     def patch_movie(jwt_payload, id_):
         return patch(Movie, id_, ['title', 'num_roles'])
 
     @app.route('/roles', methods=['GET'])
-    @requires_auth('view:roles')
+    @requires_auth('view:movies')
     def get_roles(jwt_payload):
         # possible filters as url args:
         # key word: domain
@@ -258,12 +258,22 @@ def register_views(app):
 
         return get_paginate(Role, query)
 
-    @app.route('/movie<int:id_>/roles', methods=['GET'])
-    @requires_auth('view:roles')
-    def get_movie_roles(jwt_payload, id_):
-        return get_paginate(Role, Role.query.filter_by(movie_id=id_))
+    @app.route('/movie/<int:id_>', methods=['GET'])
+    @requires_auth('view:movies')
+    def get_movie(jwt_payload, id_):
+        movie = Movie.query.get(id_)
+        if movie is None:
+            abort(404, description=f'Movie {id_} not found.')
+        roles = Role.query.filter_by(movie_id=id_)
+        formatted_rolls = [r.format() for r in roles]
+        formatted_movie = movie.format()
+        return jsonify({
+            'success': True,
+            'movie': formatted_movie,
+            'roles': formatted_rolls
+            })
 
-    @app.route('/movie<int:id_>/roles', methods=['POST'])
+    @app.route('/roles/<int:id_>', methods=['POST'])
     @requires_auth('add:roles')
     def post_roles(jwt_payload, id_):
         # requires json formatted as follows
@@ -293,12 +303,12 @@ def register_views(app):
             'num_roles': len(roles)
             })
 
-    @app.route('/role<int:id_>', methods=['DELETE'])
+    @app.route('/role/<int:id_>', methods=['DELETE'])
     @requires_auth('delete:roles')
     def delete_roll(jwt_payload, id_):
         return delete(Roll, id_)
 
-    @app.route('/book/actor<int:actor_id>/role<int:role_id>', methods=['POST'])
+    @app.route('/actor/<int:actor_id>/role/<int:role_id>', methods=['POST'])
     @requires_auth('book:actors')
     def book_actor(jwt_payload, actor_id, role_id):
         actor = Actor.query.get(actor_id)

@@ -53,6 +53,24 @@ def client():
 # ----+---------+----------
 # (0 rows)
 
+
+# Endpoints:
+# GET /actors
+# GET /movies
+# GET /roles
+# GET /movie/<id>
+# POST /roles/<id>
+# POST /actor
+# POST /movie
+# POST /actor/<id>/role/<id>
+# DELETE /actor/<id>
+# DELETE /movie/<id>
+# DELETE /role/<id>
+# PATCH /actor/<id>
+# PATCH /movie/<id>
+# PATCH /role/<id>
+
+
 # Test the GETs first before messing with the data
 
 def test_get_actor(client):
@@ -88,9 +106,9 @@ def test_get_movies(client):
     assert len(response.json['movies'])
 
 
-def test_get_movie_roles(client):
+def test_get_movie(client):
     movie_id = Movie.query.first().id
-    url = f'/movie{movie_id}/roles'
+    url = f'/movie/{movie_id}'
     response = client.get(url)
     assert response.status_code == 200
     assert len(response.json['roles'])
@@ -190,7 +208,7 @@ def test_post_movie(client):
 
 def test_delete_actor(client):
     actor_id = Actor.query.first().id
-    url = f'/actor{actor_id}'
+    url = f'/actor/{actor_id}'
     response = client.delete(url)
     assert response.status_code == 200
     actor = Actor.query.get(actor_id)
@@ -199,7 +217,7 @@ def test_delete_actor(client):
 
 def test_delete_movie(client):
     movie_id = Movie.query.first().id
-    url = f'/movie{movie_id}'
+    url = f'/movie/{movie_id}'
     response = client.delete(url)
     assert response.status_code == 200
     movie = Movie.query.get(movie_id)
@@ -209,7 +227,7 @@ def test_delete_movie(client):
 def test_patch_actor(client):
     # using .format so the attributes persist after session
     actor = Actor.query.filter(Actor.gender != 'non').first().format()
-    url = f'/actor{actor["id"]}'
+    url = f'/actor/{actor["id"]}'
     surgeon = {'male': 'female', 'female': 'male'}
     new_gender = surgeon[actor['gender']]
     json = {'gender': new_gender}
@@ -224,7 +242,7 @@ def test_patch_actor(client):
 def test_patch_movie(client):
     # using .format so the attributes persist after session
     movie = Movie.query.first().format()
-    url = f'/movie{movie["id"]}'
+    url = f'/movie/{movie["id"]}'
     new_title = movie['title'] + ' Part 2!!!'
     json = {'title': new_title}
     response = client.patch(url, json=json)
@@ -235,10 +253,10 @@ def test_patch_movie(client):
     assert respawned.release_date == movie['release_date']
 
 
-def test_book_actor_role(client):
+def test_book_actor(client):
     actor_id = Actor.query.first().id
     role_id = Role.query.first().id
-    url = f'/book/actor{actor_id}/role{role_id}'
+    url = f'/actor/{actor_id}/role/{role_id}'
     response = client.post(url)
     assert response.status_code == 200
     role = Role.query.get(role_id)
@@ -247,11 +265,11 @@ def test_book_actor_role(client):
     assert actor.bookings
 
 
-def test_post_movie_roles(client):
+def test_post_roles(client):
     movie = Movie.query.first()
     movie_id = movie.id
     nroles = len(movie.roles) # this magically gives you a list of roles
-    url = f'/movie{movie_id}/roles'
+    url = f'/roles/{movie_id}'
     json = {
         'movie': movie_id,
         'roles': [
