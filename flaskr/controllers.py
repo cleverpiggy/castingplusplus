@@ -1,6 +1,7 @@
 import sys
 from functools import wraps
 from dateutil.parser import parse
+from werkzeug.exceptions import HTTPException
 from flask import (request, jsonify, abort,
                    render_template, redirect, url_for)
 from .models import Actor, Movie, Role, Booking, rollback, close_session, add_all
@@ -114,12 +115,13 @@ def patch(model, id_, column_names):
 def delete(model, id_):
     entry = model.query.get(id_)
     if entry is None:
-        abort(404, description=f'{model.__tablename__} {id_} not found.')
+        abort(404, description=f'{model.singular()} {id_} not found.')
+    formatted_entry = entry.format()
     entry.delete()
 
     return jsonify({
         'success': True,
-        f'{model.__tablename__} id': id_
+        model.singular(): formatted_entry
         })
 
 def parse_gender(gender):
@@ -132,7 +134,7 @@ def parse_age_range(age_range):
         lower, upper = map(int, age_range.split('-'))
         assert lower < upper
     except Exception:
-        abort(422, description='malformed age range')
+        abort(422, description='Malformed age range')
     return lower, upper
 
 
@@ -207,7 +209,7 @@ def register_views(app):
     @app.route('/movie/<int:id_>', methods=['PATCH'])
     @requires_auth('edit:movies')
     def patch_movie(jwt_payload, id_):
-        return patch(Movie, id_, ['title', 'num_roles'])
+        return patch(Movie, id_, ['title', 'release_date'])
 
     @app.route('/roles', methods=['GET'])
     @requires_auth('view:movies')
@@ -244,7 +246,7 @@ def register_views(app):
         try:
             start_date, end_date = [parse(d) if d else None for d in dates]
         except Exception:
-            abort(422, description='malformed date range')
+            abort(422, description='Malformed date range')
 
         if start_date and end_date and start_date >= end_date:
             abort(422, description='start_date must be before end_date')
@@ -282,18 +284,16 @@ def register_views(app):
     @requires_auth('add:roles')
     def post_roles(jwt_payload, id_):
         # requires json formatted as follows
-        # {
-        #     'movie': movie_id,
-        #     'roles': [
-        #         {
-        #             'name':name,
-        #             'age':age,
-        #             'gender':{'male, female, non'},
-        #             'filled':bool (optional, defaults false)
-        #         },...
-        #     ]
-        # }
-        roles = get_json().get('roles')
+        #
+        # [
+        #     {
+        #         'name':name,
+        #         'age':age,
+        #         'gender':{'male, female, non'},
+        #         'filled':bool (optional, defaults false)
+        #     },...
+        # ]
+        roles = get_json()
         if not Movie.query.get(id_):
             abort(404, description=f'Movie {id_} not found')
 
@@ -333,10 +333,10 @@ def register_views(app):
     def error_handler(error):
         return jsonify({
             'success': False,
-            'code': error.code,
             'description': error.description,
-            'name': error.name
+            'name': error.name,
+            'status_code': error.code
             }), error.code
 
-    for code in (400, 404, 405, 422, 500, AuthError):
-        app.register_error_handler(code, error_handler)
+    app.register_error_handler(HTTPException, error_handler)
+    app.register_error_handler(AuthError, error_handler)

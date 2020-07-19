@@ -270,21 +270,18 @@ def test_post_roles(client):
     movie_id = movie.id
     nroles = len(movie.roles) # this magically gives you a list of roles
     url = f'/roles/{movie_id}'
-    json = {
-        'movie': movie_id,
-        'roles': [
-            {
-                'name': 'Bystander A',
-                'age': 30,
-                'gender': 'male'
-            },
-            {
-                'name': 'Bystander B',
-                'age': 50,
-                'gender': 'female'
-            }
-        ]
-    }
+    json = [
+        {
+            'name': 'Bystander A',
+            'age': 30,
+            'gender': 'male'
+        },
+        {
+            'name': 'Bystander B',
+            'age': 50,
+            'gender': 'female'
+        }
+    ]
     response = client.post(url, json=json)
     assert response.status_code == 200
     movie = Movie.query.get(movie_id)
