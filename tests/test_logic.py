@@ -1,16 +1,17 @@
+import os
 from datetime import timedelta
 from itertools import chain
 import pytest
 from flaskr import create_app
 from flaskr.models import Movie, Actor, Role
-from helpers import TEST_DB_URL
+
 
 
 @pytest.fixture(scope='module')
 def client():
     app = create_app({
         'TESTING': True,
-        'DATABASE_URL':TEST_DB_URL,
+        'DATABASE_URL':os.environ['TEST_DB_URL'],
         'TESTING_WITHOUT_AUTH': True
     })
     with app.app_context():

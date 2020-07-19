@@ -1,6 +1,6 @@
+import os
 import pytest
 from flaskr import create_app
-from helpers import TEST_DB_URL
 import jwts
 
 
@@ -8,7 +8,7 @@ import jwts
 def client():
     app = create_app({
         'TESTING': True,
-        'DATABASE_URL':TEST_DB_URL
+        'DATABASE_URL':os.environ['TEST_DB_URL']
     })
     with app.app_context():
         return app.test_client()

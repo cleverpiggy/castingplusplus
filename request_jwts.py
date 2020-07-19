@@ -17,6 +17,7 @@ import json
 from urllib.request import urlopen
 from urllib.parse import urlencode
 from os import environ
+import os
 from dotenv import load_dotenv, find_dotenv
 
 ENV_FILE = find_dotenv()
@@ -93,17 +94,33 @@ def write_file(users, file_name):
     users -> list of users (probably all of them)
     file_name -> jwts file
     """
-    with open(file_name, 'a') as f:
+    expired = []
+    # first save the expired jwt if its in there
+    if os.path.exists(file_name):
+        with open(file_name, 'r') as f:
+            old_stuff = f.read()
+            lines = old_stuff.split('\n')
+            expired = [l for l in lines if l.startswith('EXPIRED')] + ['\n']
+
+    with open(file_name, 'w') as f:
         for user in users:
             line = do_one(user)
+            f.write(line)
+        for line in expired:
             f.write(line)
 
 
 def main():
-    if len(sys.argv) < 2:
-        print ('usage:  python request_jwts.py <filname>')
-    file_name = sys.argv[1]
+    if len(sys.argv) > 1:
+        file_name = sys.argv[1]
+    elif os.path.exists('tests'):
+        file_name = 'tests/jwts.py'
+    else:
+        print('usage:  python request_jwts.py <filname>')
+        return 0
+
     write_file(['assistant', 'director', 'producer'], file_name)
+    print(f'saving to {file_name}')
     return 1
 
 
