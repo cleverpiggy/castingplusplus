@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import (Column, String, Integer, DateTime,
+from sqlalchemy import (Column, String, Integer, Date,
                         CheckConstraint, ForeignKey, Boolean)
 
 db = SQLAlchemy()
@@ -81,7 +81,7 @@ class Movie(BaseModel):
 
     id = Column(Integer, primary_key=True)
     title = Column(String(100), nullable=False)
-    release_date = Column(DateTime, nullable=False)
+    release_date = Column(Date, nullable=False)
     roles = db.relationship('Role', backref='movie', lazy=True,
                             cascade='all, delete-orphan')
     def __repr__(self):
