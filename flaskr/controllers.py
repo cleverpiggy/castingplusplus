@@ -271,9 +271,10 @@ def register_views(app):
         movie = Movie.query.get(id_)
         if movie is None:
             abort(404, description=f'Movie {id_} not found.')
-        roles = Role.query.filter_by(movie_id=id_)
-        formatted_rolls = [r.format() for r in roles]
+
+        formatted_rolls = [r.format() for r in movie.roles]
         formatted_movie = movie.format()
+
         return jsonify({
             'success': True,
             'movie': formatted_movie,
