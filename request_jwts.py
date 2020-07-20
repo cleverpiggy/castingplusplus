@@ -113,10 +113,11 @@ def write_file(users, file_name):
 def main():
     if len(sys.argv) > 1:
         file_name = sys.argv[1]
-    elif os.path.exists('tests'):
-        file_name = 'tests/jwts.py'
+    elif os.path.exists('jwts.py'):
+        file_name = 'jwts.py'
     else:
-        print('usage:  python request_jwts.py <filname>')
+        print("If you're running this outside of the castingplusplus directory, you have to use the following form:")
+        print("python request_jwts.py [full path to jwts.py]")
         return 0
 
     write_file(['assistant', 'director', 'producer'], file_name)
