@@ -4,16 +4,19 @@ from itertools import chain
 import pytest
 from flaskr import create_app
 from flaskr.models import Movie, Actor, Role
-
+import populate_testdb
 
 
 @pytest.fixture(scope='module')
 def client():
+    dburl = 'sqlite:///:memory:'
     app = create_app({
         'TESTING': True,
-        'DATABASE_URL':os.environ['TEST_DB_URL'],
+        'DATABASE_URL':dburl,
         'TESTING_WITHOUT_AUTH': True
     })
+    populate_testdb.do_it(dburl, app)
+
     with app.app_context():
         return app.test_client()
 

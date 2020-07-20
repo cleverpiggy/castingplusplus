@@ -2,14 +2,17 @@ import os
 import pytest
 from flaskr import create_app
 import jwts
+import populate_testdb
 
 
 @pytest.fixture(scope='module')
 def client():
+    dburl = 'sqlite:///:memory:'
     app = create_app({
         'TESTING': True,
-        'DATABASE_URL':os.environ['TEST_DB_URL']
+        'DATABASE_URL':dburl
     })
+    populate_testdb.do_it(dburl, app)
     with app.app_context():
         return app.test_client()
 

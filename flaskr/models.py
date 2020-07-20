@@ -1,6 +1,8 @@
+from dateutil.parser import parse
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (Column, String, Integer, Date,
                         CheckConstraint, ForeignKey, Boolean)
+from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
 
@@ -32,8 +34,6 @@ class BaseModel(db.Model):
         db.session.commit()
 
     def format(self):
-        # Not sure how robust this is.  It appears instance.__dict__
-        # contains only attributes defined here and stuff starting with '_'.
         return {p: getattr(self, p) for p in self.viewable_properties}
 
     def delete(self):
@@ -69,7 +69,6 @@ class Actor(BaseModel):
     bookings = db.relationship('Booking', backref='actor', lazy=True,
                                cascade='all, delete-orphan')
 
-
     def __repr__(self):
         return f'<Actor {self.id} {self.name}>'
 
@@ -86,6 +85,13 @@ class Movie(BaseModel):
                             cascade='all, delete-orphan')
     def __repr__(self):
         return f'<Move {self.id} {self.title}>'
+
+    @validates('release_date')
+    def validate_date(self, key, date):
+        try:
+            return parse(date)
+        except Exception:
+            return date
 
 
 # Roles represent roles in a movie.  Each movie has several.

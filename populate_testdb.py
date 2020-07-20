@@ -1,8 +1,9 @@
 from sys import argv
 from dateutil.parser import parse
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from flaskr.models import Actor, Movie, Role, Booking, add_all
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import sessionmaker
+from flaskr.models import Actor, Movie, Role, Booking, add_all, db
+from flaskr import create_app
 
 
 #name, age, gender
@@ -46,28 +47,33 @@ def extract_role(r, movies):
     return cols
 
 
-def do_it(db_url):
-    engine = create_engine(db_url, echo=False)
-    session = sessionmaker(bind=engine)()
-    #first delete anything left in there
-    for model in [Actor, Movie, Role, Booking]:
-        session.query(model).delete()
-    session.commit()
+def do_it(db_url, app=None):
+    # engine = create_engine(db_url, echo=False)
+    # session = sessionmaker(bind=engine)()
+    if app is None:
+        app = create_app({'DATABASE_URL': db_url})
 
-    columns = ['name', 'age', 'gender']
-    actor_data = [dict(zip(columns, a.split(','))) for a in ACTORS]
-    columns = ['title', 'release_date']
-    movie_data = [dict(zip(columns, extract_movie(m))) for m in MOVIES]
+    with app.app_context():
+        session = db.session
+        #first delete anything left in there
+        for model in [Booking, Role, Actor, Movie]:
+            session.query(model).delete()
+        session.commit()
 
-    session.add_all(Actor(**d) for d in actor_data)
-    session.add_all(Movie(**d) for d in movie_data)
-    session.commit()
-    movies = session.query(Movie).all()
+        columns = ['name', 'age', 'gender']
+        actor_data = [dict(zip(columns, a.split(','))) for a in ACTORS]
+        columns = ['title', 'release_date']
+        movie_data = [dict(zip(columns, extract_movie(m))) for m in MOVIES]
 
-    columns = ['name', 'age', 'gender', 'movie_id']
-    role_data = [dict(zip(columns, extract_role(r, movies))) for r in ROLES]
-    session.add_all(Role(**d) for d in role_data)
-    session.commit()
+        session.add_all(Actor(**d) for d in actor_data)
+        session.add_all(Movie(**d) for d in movie_data)
+        session.commit()
+        movies = session.query(Movie).all()
+
+        columns = ['name', 'age', 'gender', 'movie_id']
+        role_data = [dict(zip(columns, extract_role(r, movies))) for r in ROLES]
+        session.add_all(Role(**d) for d in role_data)
+        session.commit()
 
 
 def main():
