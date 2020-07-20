@@ -98,9 +98,7 @@ def test_get_actor(client):
     query_string = {'page_length': 3, 'page': 20}
     response = client.get(url, query_string=query_string)
     assert response.status_code == 404
-
-    # test filter params
-
+    # @TODO test filter params
 
 
 def test_get_movies(client):
@@ -115,8 +113,9 @@ def test_get_movie(client):
     url = f'/movie/{movie_id}'
     response = client.get(url)
     assert response.status_code == 200
-    assert len(response.json['roles'])
-    assert all(r['movie_id'] == movie_id for r in response.json['roles'])
+    roles = response.json['roles']
+    assert len(roles) > 0
+    assert all(r['movie_id'] == movie_id for r in roles)
 
 
 def test_get_roles(client):
