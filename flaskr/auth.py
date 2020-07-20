@@ -4,10 +4,8 @@ import json
 from flask import redirect, url_for, jsonify, request
 from dotenv import load_dotenv, find_dotenv
 
-# @TODO see if I can just use from urllib import urlencode, url open
-# to avoid the six dependancy
-from six.moves.urllib.parse import urlencode
-from six.moves.urllib.request import urlopen
+from urllib.request import urlopen
+from urllib.parse import urlencode
 from jose import jwt
 
 ENV_FILE = find_dotenv()
@@ -171,7 +169,6 @@ def register_views(app):
     # @TODO state is about mitigating a CSRF attack by attaching some random info,
     # store it on the client side (sessions), and AUTH0 will return the same string to check against
     # https://en.wikipedia.org/wiki/Cross-site_request_forgery
-    # scope needs to be appended to authorize_url for /userinfo to work
     authorize_url = f"https://{AUTH0_DOMAIN}/authorize?audience={AUTH0_AUDIENCE}&response_type=token&client_id={AUTH0_CLIENT_ID}&redirect_uri={AUTH0_CALLBACK_URL}"
 
     @app.route('/callback')
