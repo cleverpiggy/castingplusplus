@@ -39,14 +39,20 @@ You'll need the jwts.  For the purposes of the project, the script `request_jwts
 % python request_jwts.py
 ```
 
-If that doesn't work for some reason, you'll have to edit `jwts.py` by pasting in values of jwts for ASSISTANT, DIRECTOR, and PRODUCER inside string quotes.
+If you prefer, you can edit `jwts.py` by pasting in values of jwts for ASSISTANT, DIRECTOR, and PRODUCER inside string quotes.
 ```
+
 /jwts.py
 
 ASSISTANT='<assistant jwt goes here>'
 DIRECTOR='<director jwt goes here>'
 PRODUCER='<producer jwt goes here>'
 EXPIRED='<leave alone>'
+```
+
+Then running the tests couldn't be simipler:
+```
+% pytest
 ```
 
 # API Reference
