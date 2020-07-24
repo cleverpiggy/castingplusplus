@@ -73,9 +73,9 @@ Keep in mind the attributes of Actors, Movies, and Roles referenced below when p
     - [Posting Movies](#Posting-Movies)
     - [Editing Movies](#Editing-Movies)
 - [Roles](#Roles)
-    - [Viewing actors](#Viewing-Actors)
-    - [Posting actors](#Posting-Actors)
-    - [Editing actors](#Editing-Actors)
+    - [Viewing Roles](#Viewing-Roles)
+    - [Posting Roles](#Posting-Roles)
+    - [Editing Roles](#Editing-Roles)
 - [Deleting](#Deleting)
 - [Errors](#Errors)
 
