@@ -6,6 +6,11 @@ from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
 
+
+class DbTypeError(Exception):
+    pass
+
+
 def setup_db(app, database_path):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -18,8 +23,10 @@ def setup_db(app, database_path):
 def rollback():
     db.session.rollback()
 
+
 def close_session():
     db.session.close()
+
 
 def add_all(items):
     db.session.add_all(items)
@@ -47,6 +54,24 @@ class BaseModel(db.Model):
             setattr(self, k, v)
         db.session.commit()
 
+    @validates('age')
+    def validate_age(self, key, age):
+        try:
+            age = int(age)
+            assert age > 0
+            return age
+        except (ValueError, AssertionError):
+            raise DbTypeError
+
+    @validates('gender')
+    def validate_gender(self, key, gender):
+        try:
+            gen = gender.lower()
+            assert gen in ('male', 'female', 'non')
+            return gen
+        except (SyntaxError, AttributeError, AssertionError):
+            raise DbTypeError
+
     @classmethod
     def plural(cls):
         return cls.__tablename__ + 's'
@@ -73,7 +98,6 @@ class Actor(BaseModel):
         return f'<Actor {self.id} {self.name}>'
 
 
-
 class Movie(BaseModel):
     __tablename__ = 'movie'
     viewable_properties = ['id', 'title', 'release_date']
@@ -83,6 +107,7 @@ class Movie(BaseModel):
     release_date = Column(Date, nullable=False)
     roles = db.relationship('Role', backref='movie', lazy=True,
                             cascade='all, delete-orphan')
+
     def __repr__(self):
         return f'<Move {self.id} {self.title}>'
 
@@ -122,4 +147,5 @@ class Booking(BaseModel):
     actor_id = Column(Integer, ForeignKey('actor.id'), nullable=False)
 
     def __repr__(self):
-        return f'<Booking {self.id} role({self.role_id}) actor({self.actor_id})>'
+        return (f'<Booking {self.id}'
+                'role({self.role_id}) actor({self.actor_id})>')
