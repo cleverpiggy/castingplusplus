@@ -11,21 +11,32 @@ Check out the live version at `https://castingplusplus.herokuapp.com/`
 Requires Python 3.5 or higher.
 
 1. Clone the [repository](https://github.com/cleverpiggy/castingplusplus.git) and cd into the castingplusplus directory.
+
 2. Install the requirements (using a virtualenv is encouraged).
 
    `% pip install -r requirements.txt`
+
 3. Start a postgresql database.  I'm sure my audience of one Sir/Madam Udacity Reviewer can manage.
 
    `% createdb castingdb`
-4. Set your database url to an environment variable named DATABASE_URL.  For example:
 
-   `% export DATABASE_URL='postgresql://localhost:5432/castingdb'`
-5. Optionally run a script to populate the database with some silly samples.
+4. Edit setup.sh to set DATABASE_URL to your database url, overwriting whatever is currently there.  For example:
+    ```
+    /setup.sh
+
+    DATABASE_URL='postgresql://localhost:5432/castingdb'
+
+    # other variables are here.  do not edit.
+    ```
+
+5. Source the setup script.
+
+  `% source setup.sh`
+
+6. Optionally run a script to populate the database with some silly samples.
 
    `% python populate_testdb.py $DATABASE_URL`
-6. Set the app variable.
 
-   `% export FLASK_APP=flaskr`
 7. Run the flask app.
 
    `% flask run`
@@ -41,7 +52,6 @@ You'll need the jwts.  For the purposes of the project, the script `request_jwts
 
 If you prefer, you can edit `jwts.py` by pasting in values of jwts for ASSISTANT, DIRECTOR, and PRODUCER inside string quotes.
 ```
-
 /jwts.py
 
 ASSISTANT='<assistant jwt goes here>'
