@@ -7,9 +7,10 @@ Do it like this:
 
 python reqest_jwt.py tests/jwts.py
 
-Rememeber I filled the previously blank 'default directory' field at Auth0
-with Username-Password-Authentication to make this work.  And checked 'password'
-under advanced setting -> grant types under applications -> castingplusplus.
+Rememeber I filled the previously blank 'default directory'
+field at Auth0 with Username-Password-Authentication to make
+this work.  And checked 'password' under advanced setting -> grant types
+under applications -> castingplusplus.
 """
 
 import sys
@@ -47,9 +48,9 @@ HEADER = 'Content-Type: application/x-www-form-urlencoded'
 
 def make_data(user):
     username, password = {
-    'assistant': ASSISTANT_INFO,
-    'director': DIRECTOR_INFO,
-    'producer': PRODUCER_INFO
+        'assistant': ASSISTANT_INFO,
+        'director': DIRECTOR_INFO,
+        'producer': PRODUCER_INFO
     }[user]
     scope = 'openid profile email'
     data = {
@@ -63,6 +64,7 @@ def make_data(user):
     }
     return data
 
+
 def send_request(user, verbose=True):
     if verbose:
         print(f'doing {user}')
@@ -71,6 +73,7 @@ def send_request(user, verbose=True):
     with urlopen(BASE_URL, data=encoded) as f:
         return f.read().decode('utf-8')
 
+
 def extract_jwt(response, verbose=True):
     d = json.loads(response)
     token = d["access_token"]
@@ -78,6 +81,7 @@ def extract_jwt(response, verbose=True):
     if verbose:
         print(f'expires in {expires / 60 / 60} hours')
     return token
+
 
 def make_file_line(token, user):
     return f"{user.upper()}='{token}'\n"
@@ -88,6 +92,7 @@ def do_one(user):
     token = extract_jwt(resp)
     line = make_file_line(token, user)
     return line
+
 
 def write_file(users, file_name):
     """
@@ -100,7 +105,7 @@ def write_file(users, file_name):
         with open(file_name, 'r') as f:
             old_stuff = f.read()
             lines = old_stuff.split('\n')
-            expired = [l for l in lines if l.startswith('EXPIRED')] + ['\n']
+            expired = [ln for ln in lines if ln.startswith('EXPIRED')] + ['\n']
 
     with open(file_name, 'w') as f:
         for user in users:
@@ -116,7 +121,8 @@ def main():
     elif os.path.exists('jwts.py'):
         file_name = 'jwts.py'
     else:
-        print("If you're running this outside of the castingplusplus directory, you have to use the following form:")
+        print("If you're running this outside of the castingplusplus "
+              "directory,you have to use the following form:")
         print("python request_jwts.py [full path to jwts.py]")
         return 0
 

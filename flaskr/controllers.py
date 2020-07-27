@@ -1,10 +1,9 @@
 import sys
-from functools import wraps
 from dateutil.parser import parse
 from werkzeug.exceptions import HTTPException
-from flask import (request, jsonify, abort,
-                   render_template, redirect, url_for)
-from .models import Actor, Movie, Role, Booking, rollback, close_session, add_all
+from flask import request, jsonify, abort, render_template
+from .models import (Actor, Movie, Role, Booking,
+                     rollback, close_session, add_all)
 from .auth import AuthError, requires_auth_dummy
 from .auth import requires_auth as requires_auth_
 from .auth import register_views as reg_auth_views
@@ -32,6 +31,7 @@ def get_json():
     if request.json is None:
         abort(422, description='json required')
     return request.json
+
 
 def commit_data(func):
     """Return the result of func.
@@ -99,6 +99,7 @@ def patch(model, id_, column_names):
     if entry is None:
         abort(404, description=f'{model.singular()} {id_} not found.')
 
+    # The decision here is to ignore any superflous info the client provided
     updates = {k: get_json()[k] for k in column_names if k in get_json()}
 
     def f():
@@ -123,6 +124,7 @@ def delete(model, id_):
         'success': True,
         model.singular(): formatted_entry
         })
+
 
 def parse_gender(gender):
     g = gender.lower()
@@ -231,7 +233,8 @@ def register_views(app):
             filters['gender'] = parse_gender(gender)
 
         # ---- filled -------------------------
-        filled = {'true':True, 'false':False}.get(request.args.get('filled', '').lower())
+        filled = {'true': True, 'false': False}.get(
+            request.args.get('filled', '').lower())
         if filled:
             filters['filled'] = filled
 
@@ -241,8 +244,7 @@ def register_views(app):
             lower, upper = parse_age_range(age)
 
         # ---- dates ---------------------------
-        dates = request.args.get('start_date'), request.args.get('end_date')
-
+        dates = [request.args.get('start_date'), request.args.get('end_date')]
         try:
             start_date, end_date = [parse(d) if d else None for d in dates]
         except Exception:
@@ -312,7 +314,7 @@ def register_views(app):
     @app.route('/role/<int:id_>', methods=['DELETE'])
     @requires_auth('delete:roles')
     def delete_roll(jwt_payload, id_):
-        return delete(Roll, id_)
+        return delete(Role, id_)
 
     @app.route('/actor/<int:actor_id>/role/<int:role_id>', methods=['POST'])
     @requires_auth('book:actors')

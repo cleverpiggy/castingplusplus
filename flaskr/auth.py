@@ -166,10 +166,15 @@ def requires_auth_dummy(permission=''):
 
 def register_views(app):
 
-    # @TODO state is about mitigating a CSRF attack by attaching some random info,
-    # store it on the client side (sessions), and AUTH0 will return the same string to check against
+    # @TODO State is about mitigating a CSRF attack by attaching some
+    # random info, store it on the client side (sessions), and AUTH0
+    # will return the same string to check against.
     # https://en.wikipedia.org/wiki/Cross-site_request_forgery
-    authorize_url = f"https://{AUTH0_DOMAIN}/authorize?audience={AUTH0_AUDIENCE}&response_type=token&client_id={AUTH0_CLIENT_ID}&redirect_uri={AUTH0_CALLBACK_URL}"
+    authorize_url = (f"https://{AUTH0_DOMAIN}/authorize?"
+                     "audience={AUTH0_AUDIENCE}&"
+                     "response_type=token&"
+                     "client_id={AUTH0_CLIENT_ID}&"
+                     "redirect_uri={AUTH0_CALLBACK_URL}")
 
     @app.route('/callback')
     def callback():
@@ -178,9 +183,11 @@ def register_views(app):
 
     @app.route('/login', methods=['POST', 'GET'])
     def login():
-        # https://auth0.com/docs/universal-login/default-login-url?_ga=2.99410717.2004209071.1594001273-1129603475.1594001273
-        # The login_url should point to a route in the application that ends up
-        # redirecting to Auth0's /authorize endpoint, e.g. https://mycompany.org/login.
+        # https://auth0.com/docs/universal-login/default-login-url? \
+        # _ga=2.99410717.2004209071.1594001273-1129603475.1594001273
+        # The login_url should point to a route in the application
+        # that ends up redirecting to Auth0's /authorize endpoint,
+        # e.g. https://mycompany.org/login.
         # Note that it requires https and it cannot point to localhost.
         return redirect(authorize_url)
 
@@ -195,7 +202,8 @@ def register_views(app):
     @app.route('/logout')
     def logout():
         # Redirect user to logout endpoint
-        params = {'returnTo': url_for('index', _external=True), 'client_id': AUTH0_CLIENT_ID}
+        params = {'returnTo': url_for('index', _external=True),
+                  'client_id': AUTH0_CLIENT_ID}
         return redirect(AUTH0_BASE_URL + '/v2/logout?' + urlencode(params))
 
     #     # 1. clear the session cookies (N/A)

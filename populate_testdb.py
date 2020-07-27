@@ -6,8 +6,8 @@ from flaskr.models import Actor, Movie, Role, Booking, add_all, db
 from flaskr import create_app
 
 
-#name, age, gender
-ACTORS =[
+# name, age, gender
+ACTORS = [
     'Tom,35,male',
     'Sally,25,female',
     'Jones,19,male',
@@ -18,16 +18,18 @@ ACTORS =[
     'Pat,35,non'
 ]
 
-#title release_date
+# title release_date
 MOVIES = [
     'The End,Mar 28 2021',
     'Best Wishes,Dec 12 2020',
     'This Sucks,Sept 20 2020'
 ]
 
+
 def extract_movie(m):
     t, d = m.split(',')
     return [t, parse(d)]
+
 
 # name age gender movie_id
 ROLES = [
@@ -40,6 +42,7 @@ ROLES = [
     'Lex Luthar,40,male,2',
     'Lois Lane,30,female,2'
 ]
+
 
 def extract_role(r, movies):
     cols = r.split(',')
@@ -55,7 +58,7 @@ def do_it(db_url, app=None):
 
     with app.app_context():
         session = db.session
-        #first delete anything left in there
+        # first delete anything left in there
         for model in [Booking, Role, Actor, Movie]:
             session.query(model).delete()
         session.commit()
@@ -71,19 +74,21 @@ def do_it(db_url, app=None):
         movies = session.query(Movie).all()
 
         columns = ['name', 'age', 'gender', 'movie_id']
-        role_data = [dict(zip(columns, extract_role(r, movies))) for r in ROLES]
+        role_data = [dict(zip(columns, extract_role(r, movies)))
+                     for r in ROLES]
         session.add_all(Role(**d) for d in role_data)
         session.commit()
 
 
 def main():
     if len(argv) < 2:
-        print ("Usage:  populate_test_db <database url>")
+        print("Usage:  populate_test_db <database url>")
         return 1
     db_url = argv[1]
     do_it(db_url)
     print(db_url, 'populated')
     return 0
+
 
 if __name__ == '__main__':
     main()

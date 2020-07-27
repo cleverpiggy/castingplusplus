@@ -10,7 +10,7 @@ def client():
     dburl = 'sqlite:///:memory:'
     app = create_app({
         'TESTING': True,
-        'DATABASE_URL':dburl
+        'DATABASE_URL': dburl
     })
     populate_testdb.do_it(dburl, app)
     with app.app_context():
@@ -73,55 +73,66 @@ def test_get_actor(client):
     url = '/actors'
     check('assistant', client.get, url)
 
+
 # producer director assistant
 def test_get_movies(client):
     url = '/movies'
     check('assistant', client.get, url)
+
 
 # producer director assistant
 def test_get_movie(client):
     url = '/movie/1'
     check('assistant', client.get, url)
 
+
 # producer director assistant
 def test_get_roles(client):
     url = '/roles'
     check('assistant', client.get, url)
+
 
 # producer director
 def test_post_actor(client):
     url = '/actor'
     check('director', client.post, url)
 
+
 # producer
 def test_post_movie(client):
     url = '/movie'
     check('producer', client.post, url)
+
 
 # producer director
 def test_delete_actor(client):
     url = '/actor/1'
     check('director', client.delete, url)
 
+
 # producer
 def test_delete_movie(client):
     url = '/movie/1'
     check('producer', client.delete, url)
+
 
 # producer director
 def test_patch_actor(client):
     url = '/actor/1'
     check('director', client.patch, url)
 
+
 # producer director
 def test_patch_movie(client):
     url = '/movie/1'
     check('director', client.patch, url)
 
+
 # producer director
 def test_book_actor_role(client):
     url = f'/actor/1/role/1'
     check('director', client.post, url)
+
 
 # producer director
 def test_post_roles(client):
