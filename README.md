@@ -22,16 +22,16 @@ Requires Python 3.5 or higher.
 
 4. Edit setup.sh to set DATABASE_URL to your database url, overwriting whatever is currently there.  For example:
     ```
-    /setup.sh
+   /setup.sh
 
-    DATABASE_URL='postgresql://localhost:5432/castingdb'
+   DATABASE_URL='postgresql://localhost:5432/castingdb'
 
-    # other variables are here.  do not edit.
+   # other variables are here.  do not edit.
     ```
 
 5. Source the setup script.
 
-  `% source setup.sh`
+   `% source setup.sh`
 
 6. Optionally run a script to populate the database with some silly samples.
 
