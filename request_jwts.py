@@ -84,7 +84,7 @@ def extract_jwt(response, verbose=True):
 
 
 def make_file_line(token, user):
-    return f"{user.upper()}='{token}'\n"
+    return f"{user.upper()} = '{token}'\n"
 
 
 def do_one(user):
