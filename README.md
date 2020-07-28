@@ -54,10 +54,10 @@ If you prefer, you can edit `jwts.py` by pasting in values of jwts for ASSISTANT
 ```
 /jwts.py
 
-ASSISTANT='<assistant jwt goes here>'
-DIRECTOR='<director jwt goes here>'
-PRODUCER='<producer jwt goes here>'
-EXPIRED='<leave alone>'
+ASSISTANT = '<assistant jwt goes here>'
+DIRECTOR = '<director jwt goes here>'
+PRODUCER = '<producer jwt goes here>'
+EXPIRED = '<leave alone>'
 ```
 
 Then running the tests couldn't be simipler:
